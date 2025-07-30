@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/spf13/cobra"
+	"github.com/chalkan3/slothctl/internal/log"
 )
 
 // BluePrintCommand defines the interface for a modular CLI command.
@@ -19,28 +19,48 @@ var commands []BluePrintCommand
 
 // RegisterCommands registers all discovered BluePrintCommand implementations with the root command.
 func RegisterCommands(rootCmd *cobra.Command) {
-	// This map will hold all Cobra commands, keyed by their name.
 	cobraCommands := make(map[string]*cobra.Command)
+	commandsToProcess := make(map[string]BluePrintCommand) // Store commands that need to be processed
 
 	// First pass: Create all Cobra commands and add them to the map.
+	// Also, populate commandsToProcess
 	for _, cmd := range commands {
 		cobraCmd := cmd.CobraCommand()
 		cobraCommands[cobraCmd.Name()] = cobraCmd
+		commandsToProcess[cobraCmd.Name()] = cmd
 	}
 
-	// Second pass: Establish parent-child relationships.
-	for _, cmd := range commands {
-		cobraCmd := cobraCommands[cmd.CobraCommand().Name()]
-		if cmd.Parent() != "" {
-			parentCmd, ok := cobraCommands[cmd.Parent()]
-			if ok {
-				parentCmd.AddCommand(cobraCmd)
+	// Keep track of commands successfully added
+	addedCommands := make(map[string]bool)
+
+	// Repeatedly try to add commands until no more can be added in a pass
+	for len(commandsToProcess) > 0 {
+		commandsAddedInPass := 0
+		for cmdName, cmd := range commandsToProcess {
+			if cmd.Parent() == "" {
+				// Root command
+				rootCmd.AddCommand(cobraCommands[cmdName])
+				addedCommands[cmdName] = true
+				delete(commandsToProcess, cmdName)
+				commandsAddedInPass++
 			} else {
-				log.Warn("Parent command not found", "parent", cmd.Parent(), "command", cmd.CobraCommand().Name())
-				rootCmd.AddCommand(cobraCmd)
+				parentCmd, ok := cobraCommands[cmd.Parent()]
+				if ok && addedCommands[cmd.Parent()] { // Parent exists and has been added
+					parentCmd.AddCommand(cobraCommands[cmdName])
+					addedCommands[cmdName] = true
+					delete(commandsToProcess, cmdName)
+					commandsAddedInPass++
+				}
 			}
-		} else {
-			rootCmd.AddCommand(cobraCmd)
+		}
+		if commandsAddedInPass == 0 && len(commandsToProcess) > 0 {
+			// No commands were added in this pass, but some remain.
+			// This indicates a circular dependency or a missing parent.
+			log.Warn("Could not register all commands due to missing parents or circular dependencies. Remaining commands:", "count", len(commandsToProcess))
+			for cmdName, cmd := range commandsToProcess {
+				log.Warn("  - Command:", "name", cmdName, "parent", cmd.Parent())
+			}
+			break // Exit loop to prevent infinite loop
 		}
 	}
 }
@@ -50,42 +70,3 @@ func RegisterCommands(rootCmd *cobra.Command) {
 func AddCommandToRegistry(cmd BluePrintCommand) {
 	commands = append(commands, cmd)
 }
-
-// LoadPlugins attempts to load commands from Go plugin files (.so).
-// This is a more advanced feature and requires Go 1.8+ and building with `go build -buildmode=plugin`.
-// For simplicity, this is a placeholder and not fully implemented for this example.
-/*
-func LoadPlugins(rootCmd *cobra.Command, pluginDir string) {
-	files, err := os.ReadDir(pluginDir)
-	if err != nil {
-		log.Error("Could not read plugin directory", "directory", pluginDir, "error", err)
-		return
-	}
-
-	for _, file := range files {
-		if filepath.Ext(file.Name()) == ".so" {
-			pluginPath := filepath.Join(pluginDir, file.Name())
-			p, err := plugin.Open(pluginPath)
-			if err != nil {
-				log.Error("Failed to load plugin", "plugin_path", pluginPath, "error", err)
-				continue
-			}
-
-			sym, err := p.Lookup("Command") // Assuming each plugin exports a 'Command' symbol
-			if err != nil {
-				log.Error("Failed to lookup 'Command' symbol in plugin", "plugin_path", pluginPath, "error", err)
-				continue
-			}
-
-			cmd, ok := sym.(BluePrintCommand)
-			if !ok {
-				log.Error("Plugin does not implement BluePrintCommand interface", "plugin_path", pluginPath)
-				continue
-			}
-
-			AddCommandToRegistry(cmd)
-			log.Info("Loaded command from plugin", "command", cmd.CobraCommand().Name(), "plugin_path", pluginPath)
-		}
-	}
-}
-*/
