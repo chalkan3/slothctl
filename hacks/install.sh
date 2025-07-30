@@ -9,6 +9,7 @@ DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/v1.0.2/slot
 
 # --- Colors ---
 COLOR_GREEN='\033[0;32m'
+COLOR_YELLOW='\033[1;33m'
 COLOR_RESET='\033[0m'
 
 # --- Functions ---
@@ -18,12 +19,11 @@ command_exists() {
 
 print_banner() {
     echo -e "${COLOR_GREEN}"
-    echo "    ____  __          __   _      __ "
-    echo "   / __ \/ /_  ____  / /__/ | /| / / "
-    echo "  / /_/ / __ \/ __ \/ //_/ |/ |/ /  "
-    echo " / ____/ / / / /_/ / ,<  | /|  /   "
-    echo "/_/   /_/ /_/\____/_/|_| |/ | /    "
-    echo "                          /|__/     "
+    echo ' SSS  L      OOO  TTTTT H   H   CCC  TTTTT L     '
+    echo 'S     L     O   O   T   H   H  C       T   L     '
+    echo ' SSS  L     O   O   T   HHHHH  C       T   L     '
+    echo '    S L     O   O   T   H   H  C       T   L     '
+    echo ' SSS  LLLLL  OOO    T   H   H   CCC    T   LLLLL '
     echo -e "${COLOR_RESET}"
     echo "--- Sloth Control Installer ---"
     echo
@@ -74,4 +74,7 @@ fi
 
 echo
 echo -e "${COLOR_GREEN}slothctl installed successfully! ${COLOR_RESET}"
-echo "You can now run 'slothctl' from your terminal."
+echo
+echo "Next step: Initialize the configuration by running:"
+_YELLOW}"
+echo -e "  ${COLOR_YELLOW}slothctl configure init${COLOR_RESET}"
