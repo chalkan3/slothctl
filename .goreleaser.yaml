@@ -58,7 +58,7 @@ changelog:
 release:
   # GitHub release settings
   github:
-    owner: your-github-username
+    owner: chalkan3
     name: slothctl
   # Add release notes
   footer: |
