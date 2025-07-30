@@ -66,7 +66,7 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 			// Construct the command to run openfortivpn
 			vpnArgs := []string{"-c", configFile}
 			if passwordStdin {
-				vpnArgs = append(vpnArgs, "--password-from-stdin")
+				vpnArgs = append(vpnArgs, "-p", "-")
 			} else {
 				vpnArgs = append(vpnArgs, "--daemon") // Only daemonize if not reading from stdin
 			}
