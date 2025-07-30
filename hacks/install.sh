@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -uo pipefail
 
 # --- Configuration ---
 REPO="chalkan3/slothctl"
@@ -39,27 +39,31 @@ echo "Detected OS: $OS, Architecture: $ARCH"
 LATEST_RELEASE_URL="https://api.github.com/repos/${REPO}/releases/latest"
 echo "Fetching latest release from: $LATEST_RELEASE_URL"
 
-# Use curl or wget to fetch release data
-if command_exists curl; then
-    # A more robust way to parse JSON with grep/sed
-    LATEST_VERSION=$(curl -s "$LATEST_RELEASE_URL" | grep '"tag_name":' | sed -e 's/.*"tag_name": *"\([^"]*\)".*/\1/')
-elif command_exists wget; then
-    LATEST_VERSION=$(wget -qO- "$LATEST_RELEASE_URL" | grep '"tag_name":' | sed -e 's/.*"tag_name": *"\([^"]*\)".*/\1/')
-else
-    echo "Error: Neither curl nor wget are installed. Please install one and try again."
-    exit 1
+LATEST_VERSION=""
+# Try to parse with python if available
+if command_exists python3; then
+    LATEST_VERSION=$(curl -s "$LATEST_RELEASE_URL" | python3 -c "import sys, json; print(json.load(sys.stdin).get('tag_name', ''))" 2>/dev/null || echo "")
+elif command_exists python; then
+    # For python 2
+    LATEST_VERSION=$(curl -s "$LATEST_RELEASE_URL" | python -c "import sys, json; print json.load(sys.stdin).get('tag_name', '')" 2>/dev/null || echo "")
 fi
 
-# Fallback to default version if API call fails or returns no version
+# If python parsing failed or wasn't available, try grep/sed
 if [ -z "$LATEST_VERSION" ]; then
-    echo "Warning: Could not fetch the latest release version. Falling back to default version: $DEFAULT_VERSION"
+    echo "Python not available or parsing failed. Trying grep/sed as a fallback."
+    # The || true is to prevent the script from exiting if grep finds no match
+    LATEST_VERSION=$(curl -s "$LATEST_RELEASE_URL" | grep '"tag_name":' | sed -e 's/.*"tag_name": *"\([^"]*\)".*/\1/' | tr -d '[:space:]' || true)
+fi
+
+# Fallback to default version if all else fails
+if [ -z "$LATEST_VERSION" ]; then
+    echo "Warning: Could not fetch the latest release version automatically. Falling back to default version: $DEFAULT_VERSION"
     LATEST_VERSION="$DEFAULT_VERSION"
 fi
 
 echo "Using version: $LATEST_VERSION"
 
 # 3. Construct the download URL
-# The asset name format is slothctl_1.0.2_linux_amd64.tar.gz (version without 'v')
 DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${LATEST_VERSION}/${BINARY_NAME}_${LATEST_VERSION#v}_${OS}_${ARCH}.tar.gz"
 
 echo "Downloading from: $DOWNLOAD_URL"
@@ -68,32 +72,36 @@ echo "Downloading from: $DOWNLOAD_URL"
 TEMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TEMP_DIR"' EXIT # Cleanup on exit
 
+DOWNLOAD_CMD=""
 if command_exists curl; then
-    curl -sL "$DOWNLOAD_URL" | tar -xz -C "$TEMP_DIR"
+    DOWNLOAD_CMD="curl -sL"
 elif command_exists wget; then
-    wget -qO- "$DOWNLOAD_URL" | tar -xz -C "$TEMP_DIR"
+    DOWNLOAD_CMD="wget -qO-"
 else
     echo "Error: Neither curl nor wget are installed."
     exit 1
 fi
 
+if ! $DOWNLOAD_CMD "$DOWNLOAD_URL" | tar -xz -C "$TEMP_DIR"; then
+    echo "Error: Failed to download or extract the binary. Please check the URL and your network connection."
+    echo "URL: $DOWNLOAD_URL"
+    exit 1
+fi
+
 # 5. Install the binary
 echo "Installing $BINARY_NAME to $INSTALL_DIR..."
-if [ -f "${TEMP_DIR}/${BINARY_NAME}" ]; then
-    sudo mv "${TEMP_DIR}/${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
+# Find the binary in the temp directory. It might be in the root or a subdirectory.
+FOUND_BINARY=$(find "$TEMP_DIR" -type f -name "$BINARY_NAME" | head -n 1)
+
+if [ -n "$FOUND_BINARY" ]; then
+    echo "Binary found at: $FOUND_BINARY"
+    sudo mv "$FOUND_BINARY" "${INSTALL_DIR}/${BINARY_NAME}"
     sudo chmod +x "${INSTALL_DIR}/${BINARY_NAME}"
 else
-    # Handle cases where the binary is inside a subdirectory in the tarball
-    FOUND_BINARY=$(find "$TEMP_DIR" -type f -name "$BINARY_NAME" | head -n 1)
-    if [ -n "$FOUND_BINARY" ]; then
-        sudo mv "$FOUND_BINARY" "${INSTALL_DIR}/${BINARY_NAME}"
-        sudo chmod +x "${INSTALL_DIR}/${BINARY_NAME}"
-    else
-        echo "Error: Binary not found in the downloaded archive."
-        echo "Contents of the temporary directory:"
-        ls -lR "$TEMP_DIR"
-        exit 1
-    fi
+    echo "Error: Binary '$BINARY_NAME' not found in the downloaded archive."
+    echo "Contents of the temporary directory:"
+    ls -lR "$TEMP_DIR"
+    exit 1
 fi
 
 echo "slothctl installed successfully to ${INSTALL_DIR}/${BINARY_NAME}"
