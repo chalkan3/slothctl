@@ -47,12 +47,7 @@ case "$OS" in
 esac
 
 echo "Downloading $BINARY_NAME from $DOWNLOAD_URL..."
-# In a real scenario, this would download the actual binary.
-# For this demonstration, we'll just create a dummy file.
-# curl -L "$DOWNLOAD_URL" -o "/tmp/${BINARY_NAME}"
-
-# Mocking the download for demonstration purposes:
-echo "#!/bin/bash\n\necho \"This is a mock slothctl binary.\"\n" > "/tmp/${BINARY_NAME}"
+curl -L "$DOWNLOAD_URL" -o "/tmp/${BINARY_NAME}"
 
 echo "Making $BINARY_NAME executable..."
 chmod +x "/tmp/${BINARY_NAME}"
