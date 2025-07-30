@@ -15,7 +15,7 @@ EXTRACT_DIR="/tmp/${BINARY_NAME}_extracted"
 
 # Get the latest tag from GitHub (or use a specific version)
 # For this example, we'll hardcode v1.0.0 as requested.
-VERSION="v1.0.0"
+VERSION="v1.0.1"
 
 # Determine the archive name based on Goreleaser's name_template
 ARCHIVE_NAME="${BINARY_NAME}_${VERSION#v}_${OS,,}_${ARCH}"
