@@ -81,27 +81,25 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 			}
 
 			// Construct the full command string for bash -c
-			// Using nohup and & to run in background and detach from terminal
-			fullCmd := fmt.Sprintf("nohup sudo openfortivpn %s > /dev/null 2>&1 &", strings.Join(vpnArgs, " "))
+			// Using setsid to run in background and detach from terminal
+			// Redirect stdin from /dev/null to prevent blocking
+			// Redirect stdout/stderr to /dev/null to prevent output to terminal
+			fullCmd := fmt.Sprintf("sudo setsid openfortivpn %s > /dev/null 2>&1 < /dev/null &", strings.Join(vpnArgs, " "))
 			vpnCmd = exec.Command("bash", "-c", fullCmd)
 
-			// No need to connect stdin/stdout/stderr directly as it's running in background
-			// vpnCmd.Stdin = os.Stdin
-			// vpnCmd.Stdout = os.Stdout
-			// vpnCmd.Stderr = os.Stderr
-
-			log.Info("Executing openfortivpn command in background...")
+			log.Info("Executing openfortivpn command in background using setsid...")
 			if err := vpnCmd.Start(); err != nil { // Use Start() for background process
 				log.Error("Failed to start VPN in background", "error", err, "output", err.Error()) // Use err.Error() for more details
 				return fmt.Errorf("failed to start VPN: %w", err)
 			}
 
-			// Save PID to file
-			if err := WriteVPnPid(vpnCmd.Process.Pid); err != nil {
-				log.Warn("Failed to save VPN PID to file", "error", err)
+			// Remove PID file if it exists, as we are not reliably tracking PID here
+			// The status and disconnect commands will rely on pgrep/killall
+			if err := DeleteVPnPidFile(); err != nil {
+				log.Warn("Failed to delete old VPN PID file", "error", err)
 			}
 
-			log.Info("VPN connection process initiated in background.", "pid", vpnCmd.Process.Pid)
+			log.Info("VPN connection process initiated in background.", "pid_of_bash_process", vpnCmd.Process.Pid) // Log PID of bash process for debugging
 			log.Info("Use 'slothctl vpn status' to check the connection.")
 
 			log.Info("VPN connection process started successfully.")
