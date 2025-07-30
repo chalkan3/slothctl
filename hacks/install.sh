@@ -5,15 +5,33 @@ set -euo pipefail
 # --- Configuration ---
 INSTALL_DIR="/usr/local/bin"
 BINARY_NAME="slothctl"
-# Fixed URL as requested by the user
 DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/v1.0.2/slothctl_1.0.2_linux_amd64.tar.gz"
+
+# --- Colors ---
+COLOR_GREEN='\033[0;32m'
+COLOR_RESET='\033[0m'
 
 # --- Functions ---
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+print_banner() {
+    echo -e "${COLOR_GREEN}"
+    echo "    ____  __          __   _      __ "
+    echo "   / __ \/ /_  ____  / /__/ | /| / / "
+    echo "  / /_/ / __ \/ __ \/ //_/ |/ |/ /  "
+    echo " / ____/ / / / /_/ / ,<  | /|  /   "
+    echo "/_/   /_/ /_/\____/_/|_| |/ | /    "
+    echo "                          /|__/     "
+    echo -e "${COLOR_RESET}"
+    echo "--- Sloth Control Installer ---"
+    echo
+}
+
 # --- Main Logic ---
+print_banner
+
 echo "Starting slothctl installation from fixed URL..."
 
 echo "Downloading from: $DOWNLOAD_URL"
@@ -54,5 +72,6 @@ else
     exit 1
 fi
 
-echo "slothctl installed successfully to ${INSTALL_DIR}/${BINARY_NAME}"
+echo
+echo -e "${COLOR_GREEN}slothctl installed successfully! ${COLOR_RESET}"
 echo "You can now run 'slothctl' from your terminal."
