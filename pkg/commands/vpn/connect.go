@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/commands"
@@ -65,8 +66,16 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 
 			// Construct the command to run openfortivpn
 			vpnArgs := []string{"-c", configFile}
+
+			var password string
 			if passwordStdin {
-				vpnArgs = append(vpnArgs, "-p", "-")
+				log.Info("Reading password from stdin...")
+				passwordBytes, err := os.ReadFile("/dev/stdin") // Read from stdin
+				if err != nil {
+					return fmt.Errorf("failed to read password from stdin: %w", err)
+				}
+				password = strings.TrimSpace(string(passwordBytes))
+				vpnArgs = append(vpnArgs, "--password", password)
 			} else {
 				vpnArgs = append(vpnArgs, "--daemon") // Only daemonize if not reading from stdin
 			}
