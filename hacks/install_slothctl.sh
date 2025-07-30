@@ -10,21 +10,24 @@ ARCH=$(uname -m)
 BINARY_NAME="slothctl"
 DOWNLOAD_URL=""
 INSTALL_DIR="/usr/local/bin"
-TEMP_FILE="/tmp/${BINARY_NAME}.tar.gz"
-EXTRACTED_BINARY="/tmp/${BINARY_NAME}"
+TEMP_ARCHIVE="/tmp/${BINARY_NAME}_archive.tar.gz"
+EXTRACT_DIR="/tmp/${BINARY_NAME}_extracted"
 
 # Get the latest tag from GitHub (or use a specific version)
 # For this example, we'll hardcode v1.0.0 as requested.
 VERSION="v1.0.0"
 
+# Determine the archive name based on Goreleaser's name_template
+ARCHIVE_NAME="${BINARY_NAME}_${VERSION}_${OS,,}_${ARCH}"
+
 case "$OS" in
     Linux)
         case "$ARCH" in
             x86_64)
-                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/${VERSION}/${BINARY_NAME}_${VERSION}_linux_amd64.tar.gz"
+                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/${VERSION}/${ARCHIVE_NAME}.tar.gz"
                 ;;
             aarch64)
-                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/${VERSION}/${BINARY_NAME}_${VERSION}_linux_arm64.tar.gz"
+                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/${VERSION}/${ARCHIVE_NAME}.tar.gz"
                 ;;
             *)
                 echo "Unsupported architecture: $ARCH on Linux"
@@ -35,10 +38,10 @@ case "$OS" in
     Darwin)
         case "$ARCH" in
             x86_64)
-                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/${VERSION}/${BINARY_NAME}_${VERSION}_darwin_amd64.tar.gz"
+                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/${VERSION}/${ARCHIVE_NAME}.tar.gz"
                 ;;
             arm64)
-                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/${VERSION}/${BINARY_NAME}_${VERSION}_darwin_arm64.tar.gz"
+                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/${VERSION}/${ARCHIVE_NAME}.tar.gz"
                 ;;
             *)
                 echo "Unsupported architecture: $ARCH on macOS"
@@ -53,19 +56,27 @@ case "$OS" in
 esac
 
 echo "Downloading $BINARY_NAME from $DOWNLOAD_URL..."
-curl -L "$DOWNLOAD_URL" -o "$TEMP_FILE"
+curl -L "$DOWNLOAD_URL" -o "$TEMP_ARCHIVE"
 
 echo "Extracting $BINARY_NAME..."
-tar -xzf "$TEMP_FILE" -C "/tmp/"
+mkdir -p "$EXTRACT_DIR"
+tar -xzf "$TEMP_ARCHIVE" -C "$EXTRACT_DIR"
+
+# The binary is usually directly inside the extracted directory
+# or sometimes in a subdirectory named after the archive.
+# We'll assume it's directly in the extracted directory for now.
+# If not, a find command might be needed.
+EXTRACTED_BINARY_PATH="${EXTRACT_DIR}/${BINARY_NAME}"
 
 echo "Making $BINARY_NAME executable..."
-chmod +x "$EXTRACTED_BINARY"
+chmod +x "$EXTRACTED_BINARY_PATH"
 
 echo "Moving $BINARY_NAME to $INSTALL_DIR (requires sudo)..."
-sudo mv "$EXTRACTED_BINARY" "$INSTALL_DIR/${BINARY_NAME}"
+sudo mv "$EXTRACTED_BINARY_PATH" "$INSTALL_DIR/${BINARY_NAME}"
 
 echo "Cleaning up temporary files..."
-rm "$TEMP_FILE"
+rm "$TEMP_ARCHIVE"
+rm -rf "$EXTRACT_DIR"
 
 echo "$BINARY_NAME installed successfully to $INSTALL_DIR"
 echo "You can now run '$BINARY_NAME' from your terminal."
