@@ -65,6 +65,8 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 			}
 
 			// Construct the command to run openfortivpn
+			var vpnCmd *exec.Cmd
+
 			vpnArgs := []string{"-c", configFile}
 
 			var password string
@@ -76,14 +78,14 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 				}
 				password = strings.TrimSpace(string(passwordBytes))
 				vpnArgs = append(vpnArgs, "--password", password)
+				vpnCmd = exec.Command("sudo", append([]string{"openfortivpn"}, vpnArgs...)...)
+				vpnCmd.Stdin = nil // Close stdin to prevent blocking
 			} else {
-				vpnArgs = append(vpnArgs, "--daemon") // Always daemonize
+				vpnArgs = append(vpnArgs, "--daemon")
+				vpnCmd = exec.Command("sudo", append([]string{"openfortivpn"}, vpnArgs...)...)
+				vpnCmd.Stdin = os.Stdin // Keep stdin connected for interactive prompts
 			}
 
-			vpnCmd := exec.Command("sudo", append([]string{"openfortivpn"}, vpnArgs...)...)
-
-			// Connect stdin/stdout/stderr directly for interactive password input
-			vpnCmd.Stdin = os.Stdin
 			vpnCmd.Stdout = os.Stdout
 			vpnCmd.Stderr = os.Stderr
 
