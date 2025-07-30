@@ -18,7 +18,7 @@ EXTRACT_DIR="/tmp/${BINARY_NAME}_extracted"
 VERSION="v1.0.0"
 
 # Determine the archive name based on Goreleaser's name_template
-ARCHIVE_NAME="${BINARY_NAME}_${VERSION}_${OS,,}_${ARCH}"
+ARCHIVE_NAME="${BINARY_NAME}_${VERSION#v}_${OS,,}_${ARCH}"
 
 case "$OS" in
     Linux)
