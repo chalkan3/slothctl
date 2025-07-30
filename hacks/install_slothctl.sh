@@ -6,6 +6,7 @@ REPO_URL="https://github.com/chalkan3/slothctl.git"
 INSTALL_DIR="/usr/local/bin"
 BINARY_NAME="slothctl"
 TEMP_DIR="/tmp/slothctl_install"
+BUILD_LOG="/tmp/slothctl_build.log"
 
 echo "Starting slothctl installation from source..."
 
@@ -34,9 +35,25 @@ echo "Cloning repository $REPO_URL..."
 mkdir -p "$TEMP_DIR"
 git clone "$REPO_URL" "$TEMP_DIR"
 
-echo "Building $BINARY_NAME from source..."
+echo "Building $BINARY_NAME from source... (logging to $BUILD_LOG)"
 cd "$TEMP_DIR"
-go build -o "$BINARY_NAME" ./cmd/slothctl
+
+# Execute go build and capture its output and exit code
+if ! go build -o "$BINARY_NAME" ./cmd/slothctl > "$BUILD_LOG" 2>&1; then
+    echo "Error: go build failed! Check $BUILD_LOG for details."
+    cat "$BUILD_LOG"
+    exit 1
+fi
+
+echo "Build completed. Verifying generated binary..."
+
+# Check if the generated file is actually a binary
+if ! file "$BINARY_NAME" | grep -q "executable"; then
+    echo "Error: Generated file is not an executable binary! Content of /tmp/${BINARY_NAME} (first 20 lines):"
+    head -n 20 "$BINARY_NAME"
+    echo "Full build log in $BUILD_LOG."
+    exit 1
+fi
 
 echo "Moving $BINARY_NAME to $INSTALL_DIR (requires sudo)..."
 sudo mv "$BINARY_NAME" "$INSTALL_DIR/$BINARY_NAME"
