@@ -54,8 +54,8 @@ func (u *UserResource) ReadCurrentState(dryRun bool) (map[string]interface{}, er
 	}
 
 	return map[string]interface{}{
-		"username": u.Username,
-		"exists":   true,
+		"username":    u.Username,
+		"exists":      true,
 		"inRootGroup": isInRootGroup,
 	}, nil
 }

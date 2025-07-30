@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/spf13/cobra"
 )
 
 // BluePrintCommand defines the interface for a modular CLI command.
@@ -50,8 +50,6 @@ func RegisterCommands(rootCmd *cobra.Command) {
 func AddCommandToRegistry(cmd BluePrintCommand) {
 	commands = append(commands, cmd)
 }
-
-
 
 // LoadPlugins attempts to load commands from Go plugin files (.so).
 // This is a more advanced feature and requires Go 1.8+ and building with `go build -buildmode=plugin`.

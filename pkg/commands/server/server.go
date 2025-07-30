@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/chalkan3/slothctl/pkg/commands"
+	"github.com/spf13/cobra"
 )
 
 // serverCmd represents the base command for 'server'

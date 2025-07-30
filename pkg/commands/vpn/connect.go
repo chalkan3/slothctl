@@ -6,9 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/commands"
+	"github.com/spf13/cobra"
 )
 
 // connectCmd represents the 'vpn connect' command

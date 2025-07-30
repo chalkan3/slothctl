@@ -2,6 +2,7 @@ package incus
 
 import (
 	"fmt"
+
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/bootstrap/common"
 )

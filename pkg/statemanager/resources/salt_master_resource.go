@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	"github.com/chalkan3/slothctl/internal/log"
-	"github.com/chalkan3/slothctl/pkg/statemanager"
 	"github.com/chalkan3/slothctl/pkg/bootstrap/salt"
+	"github.com/chalkan3/slothctl/pkg/statemanager"
 )
 
 // SaltMasterResource represents a Salt Master instance.
 type SaltMasterResource struct {
-	ResourceID   string
-	Name string
+	ResourceID string
+	Name       string
 	// Add more Salt Master-specific attributes here (e.g., config, version)
 }
 
@@ -47,10 +47,10 @@ func (s *SaltMasterResource) Diff(currentState, desiredState map[string]interfac
 
 	if currentName != desiredName {
 		changes = append(changes, statemanager.Change{
-			Type:        statemanager.ChangeTypeUpdate,
-			ResourceID:  s.ID(),
-			OldValues:   map[string]interface{}{"name": currentName},
-			NewValues:   map[string]interface{}{"name": desiredName},
+			Type:           statemanager.ChangeTypeUpdate,
+			ResourceID:     s.ID(),
+			OldValues:      map[string]interface{}{"name": currentName},
+			NewValues:      map[string]interface{}{"name": desiredName},
 			DiffProperties: map[string]interface{}{"name": fmt.Sprintf("%s -> %s", currentName, desiredName)},
 		})
 	}

@@ -5,11 +5,11 @@ import (
 	"sync" // For WaitGroup
 
 	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/common"
 	"github.com/chalkan3/slothctl/pkg/bootstrap/incus"
 	"github.com/chalkan3/slothctl/pkg/bootstrap/pass"
 	"github.com/chalkan3/slothctl/pkg/bootstrap/salt"
 	"github.com/chalkan3/slothctl/pkg/bootstrap/vault"
-	"github.com/chalkan3/slothctl/pkg/bootstrap/common"
 )
 
 // RunControlPlaneBootstrap orchestrates the installation and configuration
@@ -69,7 +69,7 @@ func RunControlPlaneBootstrap(dryRun bool, saltUserPassword string) error {
 		log.Info(fmt.Sprintf("%s: Pass setup complete %s", goroutineName, log.GetRandomSlothEmoji()))
 	}()
 
-	wg.Wait() // Wait for all goroutines to finish
+	wg.Wait()      // Wait for all goroutines to finish
 	close(errChan) // Close the channel after all goroutines are done
 
 	// Check for errors from goroutines

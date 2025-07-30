@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/spf13/viper"
 	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/spf13/viper"
 )
 
 // Config represents the application configuration.
@@ -14,7 +14,7 @@ type Config struct {
 	// AsdfInstallPath is the installation path for asdf.
 	AsdfInstallPath string `mapstructure:"asdf_install_path"`
 	// DatabasePath is the path to the embedded database file.
-	DatabasePath    string `mapstructure:"database_path"`
+	DatabasePath string `mapstructure:"database_path"`
 }
 
 // Global configuration instance.
@@ -26,10 +26,10 @@ func LoadConfig() error {
 	AppConfig.AsdfInstallPath = os.ExpandEnv("$HOME/.asdf")
 	AppConfig.DatabasePath = filepath.Join(os.ExpandEnv("$HOME/.slothctl"), "slothctl.db")
 
-	viper.SetConfigName("config") // name of config file (without extension)
-	viper.SetConfigType("yaml")   // type of config file
+	viper.SetConfigName("config")          // name of config file (without extension)
+	viper.SetConfigType("yaml")            // type of config file
 	viper.AddConfigPath("$HOME/.slothctl") // path to look for the config file in
-	viper.AddConfigPath(".")             // optionally look for config in the working directory
+	viper.AddConfigPath(".")               // optionally look for config in the working directory
 
 	viper.AutomaticEnv() // read in environment variables that match
 

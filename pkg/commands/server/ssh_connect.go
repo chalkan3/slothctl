@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
-	"go.etcd.io/bbolt"
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/commands"
 	"github.com/chalkan3/slothctl/pkg/config"
 	"github.com/chalkan3/slothctl/pkg/servermanager"
+	"github.com/spf13/cobra"
+	"go.etcd.io/bbolt"
 )
 
 // sshConnectCmd represents the 'server ssh connect' command
@@ -84,7 +84,7 @@ func (c *sshConnectCmd) CobraCommand() *cobra.Command {
 				}
 				password := strings.TrimSpace(string(passwordBytes))
 
-				sshpassCmd := exec.Command("sshpass", "-p", password, "ssh", sshArgs...)
+				sshpassCmd := exec.Command("sshpass", append([]string{"-p", password, "ssh"}, sshArgs...)...)
 				sshpassCmd.Stdin = os.Stdin
 				sshpassCmd.Stdout = os.Stdout
 				sshpassCmd.Stderr = os.Stderr

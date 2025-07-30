@@ -3,13 +3,13 @@ package servermanager
 import (
 	"encoding/json"
 	"fmt"
-	"time"
+	"strings"
 
 	"go.etcd.io/bbolt"
 )
 
-const ( 
-	ServerBucket = "servers"
+const (
+	ServerBucket     = "servers"
 	DefaultServerKey = "default_server"
 )
 

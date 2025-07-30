@@ -12,14 +12,14 @@ import (
 
 // ANSI color codes
 const (
-	colorReset  = "\033[0m"
-	colorRed    = "\033[31m"
-	colorGreen  = "\033[32m"
-	colorYellow = "\033[33m"
-	colorBlue   = "\033[34m"
+	colorReset   = "\033[0m"
+	colorRed     = "\033[31m"
+	colorGreen   = "\033[32m"
+	colorYellow  = "\033[33m"
+	colorBlue    = "\033[34m"
 	colorMagenta = "\033[35m"
-	colorCyan   = "\033[36m"
-	colorWhite  = "\033[37m"
+	colorCyan    = "\033[36m"
+	colorWhite   = "\033[37m"
 )
 
 // textHandler is a slog.Handler that writes log records to an io.Writer
@@ -34,8 +34,8 @@ type textHandler struct {
 func NewTextHandler(out io.Writer, opts *slog.HandlerOptions) slog.Handler {
 	return &textHandler{
 		Handler: slog.NewTextHandler(out, opts),
-		out:	 out,
-		mu:		&sync.Mutex{},
+		out:     out,
+		mu:      &sync.Mutex{},
 	}
 }
 
@@ -111,8 +111,8 @@ func (h *textHandler) Handle(ctx context.Context, r slog.Record) error {
 func (h *textHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	return &textHandler{
 		Handler: h.Handler.WithAttrs(attrs),
-		out:	 h.out,
-		mu:		 h.mu,
+		out:     h.out,
+		mu:      h.mu,
 	}
 }
 
@@ -120,7 +120,7 @@ func (h *textHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 func (h *textHandler) WithGroup(name string) slog.Handler {
 	return &textHandler{
 		Handler: h.Handler.WithGroup(name),
-		out:	 h.out,
-		mu:		 h.mu,
+		out:     h.out,
+		mu:      h.mu,
 	}
 }

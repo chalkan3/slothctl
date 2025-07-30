@@ -1,12 +1,11 @@
 package vpn
 
 import (
-	"fmt"
 	"os/exec"
 
-	"github.com/spf13/cobra"
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/commands"
+	"github.com/spf13/cobra"
 )
 
 // disconnectCmd represents the 'vpn disconnect' command
@@ -31,7 +30,7 @@ func (c *disconnectCmd) CobraCommand() *cobra.Command {
 			output, err := dcCmd.CombinedOutput()
 			if err != nil {
 				// killall returns a non-zero exit code if no process is found, which is not a fatal error for us.
-				if (len(output) > 0 && string(output) != "") {
+				if len(output) > 0 && string(output) != "" {
 					log.Warn("No running OpenVPN process found or an error occurred.", "output", string(output))
 				} else {
 					log.Info("No running OpenVPN process found.")

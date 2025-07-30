@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/commands"
+	"github.com/spf13/cobra"
 )
 
 // setDefaultCmd represents the 'vpn config set-default' command

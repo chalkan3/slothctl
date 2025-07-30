@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	"github.com/chalkan3/slothctl/internal/log"
-	"github.com/chalkan3/slothctl/pkg/statemanager"
 	"github.com/chalkan3/slothctl/pkg/bootstrap/incus"
+	"github.com/chalkan3/slothctl/pkg/statemanager"
 )
 
 // IncusResource represents an Incus host.
 type IncusResource struct {
-	ResourceID   string
-	Name string
+	ResourceID string
+	Name       string
 	// Add more Incus-specific attributes here (e.g., version, storage pools, networks)
 }
 
@@ -47,10 +47,10 @@ func (i *IncusResource) Diff(currentState, desiredState map[string]interface{}) 
 
 	if currentName != desiredName {
 		changes = append(changes, statemanager.Change{
-			Type:        statemanager.ChangeTypeUpdate,
-			ResourceID:  i.ID(),
-			OldValues:   map[string]interface{}{"name": currentName},
-			NewValues:   map[string]interface{}{"name": desiredName},
+			Type:           statemanager.ChangeTypeUpdate,
+			ResourceID:     i.ID(),
+			OldValues:      map[string]interface{}{"name": currentName},
+			NewValues:      map[string]interface{}{"name": desiredName},
 			DiffProperties: map[string]interface{}{"name": fmt.Sprintf("%s -> %s", currentName, desiredName)},
 		})
 	}

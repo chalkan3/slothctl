@@ -6,15 +6,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
-	"go.etcd.io/bbolt"
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/bootstrap"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/common" // Import common for GenerateUUID
 	"github.com/chalkan3/slothctl/pkg/commands"
 	"github.com/chalkan3/slothctl/pkg/config"
 	"github.com/chalkan3/slothctl/pkg/statemanager"
 	"github.com/chalkan3/slothctl/pkg/statemanager/resources"
-	"github.com/chalkan3/slothctl/pkg/bootstrap/common" // Import common for GenerateUUID
+	"github.com/spf13/cobra"
+	"go.etcd.io/bbolt"
 )
 
 // initCmd represents the 'configure init' command
@@ -133,10 +133,10 @@ func (c *initCmd) CobraCommand() *cobra.Command {
 										val = "[secret]"
 									}
 									if k == "id" {
-                                        createdUserID = val // Capture the user ID
-                                        val = "{algum_uuid}"
-                                    }
-                                    fmt.Printf("│                                 |─ %-14s        %s                                                        │\n", k, val)
+										createdUserID = val // Capture the user ID
+										val = "{algum_uuid}"
+									}
+									fmt.Printf("│                                 |─ %-14s        %s                                                        │\n", k, val)
 								}
 							}
 						} else if change.Type == statemanager.ChangeTypeSetGroup {
@@ -173,32 +173,32 @@ func (c *initCmd) CobraCommand() *cobra.Command {
 					}
 				}
 
-				                // Print package changes
-                if len(packageChanges) > 0 {
-                    fmt.Printf("│                +   [Core:PackageManager]                                                                                                      │\n")
-                    fmt.Printf("│                                    +   │   => install                                                                                         │\n")
-                    fmt.Printf("│                                                        @depends None                                                             │\n")
-                    for _, changes := range packageChanges {
-                        for _, change := range changes {
-                            _ = strings.Split(change.ResourceID, ":")[0] // resourceType
-                            resourceName := strings.Split(change.ResourceID, ":")[1]
+				// Print package changes
+				if len(packageChanges) > 0 {
+					fmt.Printf("│                +   [Core:PackageManager]                                                                                                      │\n")
+					fmt.Printf("│                                    +   │   => install                                                                                         │\n")
+					fmt.Printf("│                                                        @depends None                                                             │\n")
+					for _, changes := range packageChanges {
+						for _, change := range changes {
+							_ = strings.Split(change.ResourceID, ":")[0] // resourceType
+							resourceName := strings.Split(change.ResourceID, ":")[1]
 
-                            fmt.Printf("│                                                                            +   │        ├─ name       ->  %s                    │\n", resourceName)
-                            if change.NewValues != nil {
-                                for k, v := range change.NewValues {
-                                    val := fmt.Sprintf("%v", v)
-                                    if strings.Contains(k, "password") || strings.Contains(k, "secret") || strings.Contains(k, "token") {
-                                        val = "[secret]"
-                                    }
-                                    if k == "id" {
-                                        val = "{algum_uuid}"
-                                    }
-                                    fmt.Printf("│                                                                                                                    +   │        ├─ %-14s -> %s                                                                                 │\n", k, val)
-                                }
-                            }
-                        }
-                    }
-                }
+							fmt.Printf("│                                                                            +   │        ├─ name       ->  %s                    │\n", resourceName)
+							if change.NewValues != nil {
+								for k, v := range change.NewValues {
+									val := fmt.Sprintf("%v", v)
+									if strings.Contains(k, "password") || strings.Contains(k, "secret") || strings.Contains(k, "token") {
+										val = "[secret]"
+									}
+									if k == "id" {
+										val = "{algum_uuid}"
+									}
+									fmt.Printf("│                                                                                                                    +   │        ├─ %-14s -> %s                                                                                 │\n", k, val)
+								}
+							}
+						}
+					}
+				}
 
 				fmt.Println("\nResources:")
 				fmt.Printf("    + %d to create\n", countChanges(changes, statemanager.ChangeTypeCreate))

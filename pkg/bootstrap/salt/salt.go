@@ -91,9 +91,9 @@ master: 127.0.0.1 # Assuming master is on the same machine for control-plane
 
 	// Use a here-document to write multi-line content to file
 	cmdStr := fmt.Sprintf("cat <<EOF > %s\n%sEOF", saltMinionConfigPath, minionConfigContent)
-		if err := common.RunCommand(goroutineName, dryRun, nil, "sudo", "sh", "-c", cmdStr); err != nil {
-			return fmt.Errorf("failed to write Salt Minion config: %w", err)
-		}
+	if err := common.RunCommand(goroutineName, dryRun, nil, "sudo", "sh", "-c", cmdStr); err != nil {
+		return fmt.Errorf("failed to write Salt Minion config: %w", err)
+	}
 	log.Info(fmt.Sprintf("%s: Salt Minion configured.", goroutineName))
 
 	// Enable and start salt-minion service

@@ -1,8 +1,8 @@
 package vpn
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/chalkan3/slothctl/pkg/commands"
+	"github.com/spf13/cobra"
 )
 
 // configCmd represents the base command for 'vpn config'

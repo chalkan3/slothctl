@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	"github.com/chalkan3/slothctl/internal/log"
-	"github.com/chalkan3/slothctl/pkg/statemanager"
 	"github.com/chalkan3/slothctl/pkg/bootstrap/vault"
+	"github.com/chalkan3/slothctl/pkg/statemanager"
 )
 
 // VaultResource represents a HashiCorp Vault instance.
 type VaultResource struct {
-	ResourceID   string
-	Name string
+	ResourceID string
+	Name       string
 	// Add more Vault-specific attributes here (e.g., version, config path, address)
 }
 
@@ -53,10 +53,10 @@ func (v *VaultResource) Diff(currentState, desiredState map[string]interface{}) 
 
 	if currentName != desiredName {
 		changes = append(changes, statemanager.Change{
-			Type:        statemanager.ChangeTypeUpdate,
-			ResourceID:  v.ID(),
-			OldValues:   map[string]interface{}{"name": currentName},
-			NewValues:   map[string]interface{}{"name": desiredName},
+			Type:           statemanager.ChangeTypeUpdate,
+			ResourceID:     v.ID(),
+			OldValues:      map[string]interface{}{"name": currentName},
+			NewValues:      map[string]interface{}{"name": desiredName},
 			DiffProperties: map[string]interface{}{"name": fmt.Sprintf("%s -> %s", currentName, desiredName)},
 		})
 	}

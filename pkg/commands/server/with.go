@@ -2,14 +2,15 @@ package server
 
 import (
 	"fmt"
+	"os"
 	"time"
 
-	"github.com/spf13/cobra"
-	"go.etcd.io/bbolt"
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/commands"
 	"github.com/chalkan3/slothctl/pkg/config"
 	"github.com/chalkan3/slothctl/pkg/servermanager"
+	"github.com/spf13/cobra"
+	"go.etcd.io/bbolt"
 )
 
 // withCmd represents the 'server with' command

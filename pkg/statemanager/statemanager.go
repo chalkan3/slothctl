@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"go.etcd.io/bbolt"
 	"github.com/chalkan3/slothctl/internal/log"
+	"go.etcd.io/bbolt"
 )
 
 // Resource is the interface that all managed resources must implement.
@@ -21,22 +21,22 @@ type Resource interface {
 type ChangeType string
 
 const (
-	ChangeTypeCreate ChangeType = "create"
-	ChangeTypeUpdate ChangeType = "update"
-	ChangeTypeDelete ChangeType = "delete"
-	ChangeTypeNoOp   ChangeType = "no-op"
-	ChangeTypeSetGroup ChangeType = "set-group"
+	ChangeTypeCreate    ChangeType = "create"
+	ChangeTypeUpdate    ChangeType = "update"
+	ChangeTypeDelete    ChangeType = "delete"
+	ChangeTypeNoOp      ChangeType = "no-op"
+	ChangeTypeSetGroup  ChangeType = "set-group"
 	ChangeTypeConfigure ChangeType = "configure"
 )
 
 // Change represents a planned or applied modification to a resource.
 type Change struct {
-	Type          ChangeType             `json:"type"`
-	ResourceID    string                 `json:"resource_id"`
-	NewValues     map[string]interface{} `json:"new_values,omitempty"` // For create and update
-	OldValues     map[string]interface{} `json:"old_values,omitempty"` // For update and delete
+	Type           ChangeType             `json:"type"`
+	ResourceID     string                 `json:"resource_id"`
+	NewValues      map[string]interface{} `json:"new_values,omitempty"`      // For create and update
+	OldValues      map[string]interface{} `json:"old_values,omitempty"`      // For update and delete
 	DiffProperties map[string]interface{} `json:"diff_properties,omitempty"` // Properties that changed
-	Details       map[string]interface{} `json:"details,omitempty"` // General details about the change
+	Details        map[string]interface{} `json:"details,omitempty"`         // General details about the change
 }
 
 // StateManager manages the desired and current state of resources.

@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"os/exec"
 	"math/rand" // For random goroutine names
-	"time"      // For seeding rand
+	"os/exec"
+	"time" // For seeding rand
 
-	"github.com/google/uuid"
 	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/google/uuid"
 )
 
 // RunCommand executes a shell command and logs its output.
