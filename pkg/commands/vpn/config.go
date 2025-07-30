@@ -26,4 +26,5 @@ func (c *configCmd) CobraCommand() *cobra.Command {
 
 func init() {
 	commands.AddCommandToRegistry(&configCmd{})
+	commands.AddCommandToRegistry(&createCmd{})
 }
