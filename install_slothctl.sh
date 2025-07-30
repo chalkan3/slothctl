@@ -5,7 +5,7 @@ set -euo pipefail
 # --- Configuration ---
 BINARY_NAME="slothctl"
 INSTALL_DIR="/usr/local/bin"
-VERSION="v1.0.1" # The version to install
+VERSION="v1.0.2" # The version to install
 
 # --- Temporary Files ---
 TEMP_ARCHIVE="/tmp/${BINARY_NAME}_archive.tar.gz"
