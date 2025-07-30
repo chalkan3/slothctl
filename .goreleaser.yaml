@@ -56,6 +56,7 @@ changelog:
       - '^chore:'
 
 release:
+  draft: false
   # GitHub release settings
   github:
     owner: chalkan3
