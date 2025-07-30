@@ -15,11 +15,12 @@ const (
 
 // Server represents a managed server entry.
 type Server struct {
-	Name    string `json:"name"`
-	Group   string `json:"group"`
-	Context string `json:"context"`
-	IP      string `json:"ip"`
-	User    string `json:"user"`
+	Name        string `json:"name"`
+	Group       string `json:"group"`
+	Context     string `json:"context"`
+	IP          string `json:"ip"`
+	User        string `json:"user"`
+	Description string `json:"description"`
 	// Add other relevant fields like SSH key path, port, etc.
 }
 

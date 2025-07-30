@@ -31,6 +31,7 @@ func (c *registerCmd) CobraCommand() *cobra.Command {
 			context, _ := cmd.Flags().GetString("context")
 			ip, _ := cmd.Flags().GetString("ip")
 			user, _ := cmd.Flags().GetString("user")
+			description, _ := cmd.Flags().GetString("description")
 
 			if group == "" || context == "" || ip == "" || user == "" {
 				return fmt.Errorf("group, context, ip, and user flags are required")
@@ -50,11 +51,12 @@ func (c *registerCmd) CobraCommand() *cobra.Command {
 			}
 
 			server := servermanager.Server{
-				Name:    name,
-				Group:   group,
-				Context: context,
-				IP:      ip,
-				User:    user,
+				Name:        name,
+				Group:       group,
+				Context:     context,
+				IP:          ip,
+				User:        user,
+				Description: description,
 			}
 
 			if err := sm.SaveServer(server); err != nil {
@@ -70,6 +72,7 @@ func (c *registerCmd) CobraCommand() *cobra.Command {
 	cmd.Flags().StringP("context", "c", "", "Server context (required)")
 	cmd.Flags().StringP("ip", "i", "", "Server IP address (required)")
 	cmd.Flags().StringP("user", "u", "", "SSH username for the server (required)")
+	cmd.Flags().StringP("description", "d", "", "Description of the server (optional)")
 
 	cmd.MarkFlagRequired("group")
 	cmd.MarkFlagRequired("context")
