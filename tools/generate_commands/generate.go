@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"log"
 	"os"
 	"path/filepath"
@@ -46,38 +49,51 @@ func findCommandPackages(dir string, projectRoot string) ([]string, error) {
 		if err != nil {
 			return err
 		}
-		if info.IsDir() {
-			// Skip hidden directories and generated directories
-			if strings.HasPrefix(info.Name(), ".") || strings.HasPrefix(info.Name(), "zz_") {
-				return filepath.SkipDir
-			}
+		if !info.IsDir() {
 			return nil
 		}
-
-		// Only process .go files
-		if filepath.Ext(path) != ".go" {
+		// Skip the root commands directory itself
+		if path == dir {
 			return nil
 		}
-
-		// Skip generate.go itself
-		if info.Name() == "generate.go" {
-			return nil
+		if strings.HasPrefix(info.Name(), ".") || strings.HasPrefix(info.Name(), "zz_") || info.Name() == "generate.go" {
+			return filepath.SkipDir // Skip hidden directories, generated files, and generate.go
 		}
 
-		content, err := os.ReadFile(path)
+		fset := token.NewFileSet()
+		pkgs, err := parser.ParseDir(fset, path, nil, parser.ParseComments)
 		if err != nil {
-			return fmt.Errorf("failed to read file %s: %w", path, err)
-		}
-
-		if strings.Contains(string(content), "commands.AddCommandToRegistry") {
-			relPath, err := filepath.Rel(projectRoot, filepath.Dir(path))
-			if err != nil {
-				log.Printf("Error getting relative path for %s: %v", path, err)
+			if strings.Contains(err.Error(), "no buildable Go source files") {
 				return nil
 			}
-			if _, exists := uniquePackages[relPath]; !exists {
-				uniquePackages[relPath] = true
-				packages = append(packages, relPath)
+			return fmt.Errorf("error parsing directory %s: %w", path, err)
+		}
+
+		for _, pkg := range pkgs {
+			for _, file := range pkg.Files {
+				// Inspect the file for AddCommandToRegistry calls
+				ast.Inspect(file, func(node ast.Node) bool {
+					if callExpr, ok := node.(*ast.CallExpr); ok {
+						if selExpr, ok := callExpr.Fun.(*ast.SelectorExpr); ok {
+							if ident, ok := selExpr.X.(*ast.Ident); ok && ident.Name == "commands" {
+								if selExpr.Sel.Name == "AddCommandToRegistry" {
+									// Calculate relative path from the project root
+									relPath, err := filepath.Rel(projectRoot, path)
+									if err != nil {
+										log.Printf("Error getting relative path for %s: %v", path, err)
+										return false
+									}
+									if _, exists := uniquePackages[relPath]; !exists {
+										uniquePackages[relPath] = true
+										packages = append(packages, relPath)
+									}
+									return false
+								}
+							}
+						}
+					}
+					return true
+				})
 			}
 		}
 		return nil

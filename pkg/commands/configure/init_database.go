@@ -5,11 +5,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/spf13/cobra"
-	"go.etcd.io/bbolt"
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/commands"
 	"github.com/chalkan3/slothctl/pkg/config"
+	"github.com/spf13/cobra"
+	"go.etcd.io/bbolt"
 )
 
 // databaseCmd represents the 'configure init database' command
