@@ -1,6 +1,8 @@
 package vpn
 
 import (
+	"fmt"
+	"os"
 	"os/exec"
 
 	"github.com/chalkan3/slothctl/internal/log"
@@ -23,19 +25,49 @@ func (c *disconnectCmd) CobraCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			log.Info("Attempting to disconnect from VPN...")
 
-			// Find and kill the openvpn process. `killall` is a convenient way to do this.
-			// This requires running as root.
-			dcCmd := exec.Command("sudo", "killall", "openfortivpn")
-
-			output, err := dcCmd.CombinedOutput()
+			pid, err := ReadVPnPid()
 			if err != nil {
-				// killall returns a non-zero exit code if no process is found, which is not a fatal error for us.
-				if len(output) > 0 && string(output) != "" {
-					log.Warn("No running OpenVPN process found or an error occurred.", "output", string(output))
-				} else {
-					log.Info("No running OpenVPN process found.")
+				log.Warn("Could not read VPN PID file. Attempting to kill by name.", "error", err)
+				// Fallback to killall if PID file not found
+				dcCmd := exec.Command("sudo", "killall", "openfortivpn")
+				output, err := dcCmd.CombinedOutput()
+				if err != nil {
+					if len(output) > 0 && string(output) != "" {
+						log.Warn("No running openfortivpn process found or an error occurred.", "output", string(output))
+					} else {
+						log.Info("No running openfortivpn process found.")
+					}
+					return nil
 				}
-				return nil // Don't treat "no process found" as an error
+			} else {
+				log.Info("Killing VPN process by PID.", "pid", pid)
+				process, err := os.FindProcess(pid)
+				if err != nil {
+					log.Warn("Process not found for PID from file. Attempting to kill by name.", "pid", pid, "error", err)
+					// Fallback to killall if process not found
+					dcCmd := exec.Command("sudo", "killall", "openfortivpn")
+					output, err := dcCmd.CombinedOutput()
+					if err != nil {
+						if len(output) > 0 && string(output) != "" {
+							log.Warn("No running openfortivpn process found or an error occurred.", "output", string(output))
+						} else {
+							log.Info("No running openfortivpn process found.")
+						}
+						return nil
+					}
+				} else {
+					if err := process.Signal(os.Interrupt); err != nil { // Use os.Interrupt for graceful shutdown
+						log.Warn("Failed to send interrupt signal, attempting to kill.", "error", err)
+						if err := process.Kill(); err != nil {
+							return fmt.Errorf("failed to kill VPN process: %w", err)
+						}
+					}
+				}
+			}
+
+			// Clean up PID file
+			if err := DeleteVPnPidFile(); err != nil {
+				log.Warn("Failed to delete VPN PID file", "error", err)
 			}
 
 			log.Info("VPN disconnected successfully.")

@@ -96,7 +96,12 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 				return fmt.Errorf("failed to start VPN: %w", err)
 			}
 
-			log.Info("VPN connection process initiated in background.")
+			// Save PID to file
+			if err := WriteVPnPid(vpnCmd.Process.Pid); err != nil {
+				log.Warn("Failed to save VPN PID to file", "error", err)
+			}
+
+			log.Info("VPN connection process initiated in background.", "pid", vpnCmd.Process.Pid)
 			log.Info("Use 'slothctl vpn status' to check the connection.")
 
 			log.Info("VPN connection process started successfully.")
