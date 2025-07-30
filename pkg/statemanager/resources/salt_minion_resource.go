@@ -3,9 +3,9 @@ package resources
 import (
 	"fmt"
 
-	"slothctl/internal/log"
-	"slothctl/pkg/statemanager"
-	"slothctl/pkg/bootstrap/salt"
+	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/chalkan3/slothctl/pkg/statemanager"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/salt"
 )
 
 // SaltMinionResource represents a Salt Minion instance.

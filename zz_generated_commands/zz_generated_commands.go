@@ -1,5 +1,5 @@
 package zz_generated_commands
 
 import (
-	_ "slothctl/pkg/commands/configure"
+	_ "github.com/chalkan3/slothctl/pkg/commands/configure"
 )

@@ -1,0 +1,39 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binaries
+*_test
+
+# Output of the go tool
+.cache/
+
+# Dependencies
+/vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Slothctl specific
+slothctl
+zz_generated_commands/
+
+# Editor-specific files
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.bak
+*.swo
+
+# Log files
+*.log
+
+# Database files
+*.db
+
+# Goreleaser artifacts
+dist/

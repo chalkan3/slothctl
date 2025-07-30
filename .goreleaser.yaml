@@ -1,0 +1,35 @@
+# .goreleaser.yaml
+# Build section
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    main: ./cmd/slothctl/main.go
+    binary: slothctl
+
+# Archive section
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+# Checksum section
+checksum:
+  name_template: 'checksums.txt'
+
+# Snapshot section (for local testing)
+snapshot:
+  name_template: "{{ .ProjectName }}_snapshot"
+
+# Changelog section
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

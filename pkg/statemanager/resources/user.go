@@ -5,9 +5,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"slothctl/internal/log"
-	"slothctl/pkg/bootstrap/common"
-	"slothctl/pkg/statemanager"
+	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/common"
+	"github.com/chalkan3/slothctl/pkg/statemanager"
 )
 
 // UserResource represents a system user to be managed.

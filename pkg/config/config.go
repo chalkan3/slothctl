@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/viper"
-	"slothctl/internal/log"
+	"github.com/chalkan3/slothctl/internal/log"
 )
 
 // Config represents the application configuration.

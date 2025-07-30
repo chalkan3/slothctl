@@ -2,7 +2,7 @@ package configure
 
 import (
 	"github.com/spf13/cobra"
-	"slothctl/pkg/commands"
+	"github.com/chalkan3/slothctl/pkg/commands"
 )
 
 // configureCmd represents the base command for 'configure'

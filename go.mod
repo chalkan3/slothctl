@@ -1,4 +1,4 @@
-module slothctl
+module github.com/chalkan3/slothctl
 
 go 1.23
 

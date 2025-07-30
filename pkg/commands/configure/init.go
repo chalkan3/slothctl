@@ -8,13 +8,13 @@ import (
 
 	"github.com/spf13/cobra"
 	"go.etcd.io/bbolt"
-	"slothctl/internal/log"
-	"slothctl/pkg/bootstrap"
-	"slothctl/pkg/commands"
-	"slothctl/pkg/config"
-	"slothctl/pkg/statemanager"
-	"slothctl/pkg/statemanager/resources"
-	"slothctl/pkg/bootstrap/common" // Import common for GenerateUUID
+	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/chalkan3/slothctl/pkg/bootstrap"
+	"github.com/chalkan3/slothctl/pkg/commands"
+	"github.com/chalkan3/slothctl/pkg/config"
+	"github.com/chalkan3/slothctl/pkg/statemanager"
+	"github.com/chalkan3/slothctl/pkg/statemanager/resources"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/common" // Import common for GenerateUUID
 )
 
 // initCmd represents the 'configure init' command

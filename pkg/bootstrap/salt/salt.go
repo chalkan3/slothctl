@@ -3,14 +3,14 @@ package salt
 import (
 	"fmt"
 
-	"slothctl/internal/log"
-	"slothctl/pkg/bootstrap/common"
+	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/common"
 )
 
 const (
 	saltMasterConfigPath = "/etc/salt/master"
 	saltMinionConfigPath = "/etc/salt/minion"
-	gitFsRepoURL         = "https://github.com/your-org/your-salt-states.git" // Mock URL
+	gitFsRepoURL         = "https://github.com/chalkan3/slothctl/salt" // Mock URL
 	saltUserName         = "saltuser"
 )
 

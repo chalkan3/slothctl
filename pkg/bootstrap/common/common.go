@@ -9,7 +9,7 @@ import (
 	"time"      // For seeding rand
 
 	"github.com/google/uuid"
-	"slothctl/internal/log"
+	"github.com/chalkan3/slothctl/internal/log"
 )
 
 // RunCommand executes a shell command and logs its output.

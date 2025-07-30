@@ -2,8 +2,8 @@ package incus
 
 import (
 	"fmt"
-	"slothctl/internal/log"
-	"slothctl/pkg/bootstrap/common"
+	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/common"
 )
 
 // InstallAndConfigureIncus installs and configures Incus.

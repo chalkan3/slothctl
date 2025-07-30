@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"go.etcd.io/bbolt"
-	"slothctl/internal/log"
+	"github.com/chalkan3/slothctl/internal/log"
 )
 
 // Resource is the interface that all managed resources must implement.

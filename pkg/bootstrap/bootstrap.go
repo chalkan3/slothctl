@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"sync" // For WaitGroup
 
-	"slothctl/internal/log"
-	"slothctl/pkg/bootstrap/incus"
-	"slothctl/pkg/bootstrap/pass"
-	"slothctl/pkg/bootstrap/salt"
-	"slothctl/pkg/bootstrap/vault"
-	"slothctl/pkg/bootstrap/common"
+	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/incus"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/pass"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/salt"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/vault"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/common"
 )
 
 // RunControlPlaneBootstrap orchestrates the installation and configuration

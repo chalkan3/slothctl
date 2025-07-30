@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"slothctl/internal/log"
-	"slothctl/pkg/bootstrap/common"
+	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/chalkan3/slothctl/pkg/bootstrap/common"
 )
 
 const (

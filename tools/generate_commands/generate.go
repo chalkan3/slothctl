@@ -72,7 +72,7 @@ func findCommandPackages(dir string, projectRoot string) ([]string, error) {
 		for _, pkg := range pkgs {
 			for _, file := range pkg.Files {
 				for _, imp := range file.Imports {
-					if imp.Path.Value == "\"slothctl/pkg/commands\"" {
+					if imp.Path.Value == "github.com/chalkan3/slothctl/pkg/commands" {
 						ast.Inspect(file, func(node ast.Node) bool {
 							if callExpr, ok := node.(*ast.CallExpr); ok {
 								if selExpr, ok := callExpr.Fun.(*ast.SelectorExpr); ok {
@@ -112,7 +112,7 @@ func findCommandPackages(dir string, projectRoot string) ([]string, error) {
 func generateCommandsFile(packages []string, projectRoot string) error {
 	var imports []string
 	for _, pkg := range packages {
-		imports = append(imports, fmt.Sprintf("\t_ \"slothctl/%s\"", pkg)) // pkg is already relative to project root
+		imports = append(imports, fmt.Sprintf("	_ \"github.com/chalkan3/slothctl/%s\"", pkg)) // pkg is already relative to project root
 	}
 
 	// Ensure the output directory exists, relative to project root

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"slothctl/internal/log"
-	"slothctl/pkg/commands"
-	"slothctl/pkg/config"
-	_ "slothctl/zz_generated_commands"
+	"github.com/chalkan3/slothctl/internal/log"
+	"github.com/chalkan3/slothctl/pkg/commands"
+	"github.com/chalkan3/slothctl/pkg/config"
+	_ "github.com/chalkan3/slothctl/zz_generated_commands"
 
 	"github.com/spf13/cobra"
 )

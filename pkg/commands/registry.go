@@ -2,7 +2,7 @@ package commands
 
 import (
 	"github.com/spf13/cobra"
-	"slothctl/internal/log"
+	"github.com/chalkan3/slothctl/internal/log"
 )
 
 // BluePrintCommand defines the interface for a modular CLI command.
