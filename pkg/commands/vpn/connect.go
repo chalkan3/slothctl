@@ -77,7 +77,7 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 				password = strings.TrimSpace(string(passwordBytes))
 				vpnArgs = append(vpnArgs, "--password", password)
 			} else {
-				vpnArgs = append(vpnArgs, "--daemon") // Only daemonize if not reading from stdin
+				vpnArgs = append(vpnArgs, "--daemon") // Always daemonize
 			}
 
 			vpnCmd := exec.Command("sudo", append([]string{"openfortivpn"}, vpnArgs...)...)
