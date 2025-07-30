@@ -78,22 +78,26 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 				}
 				password = strings.TrimSpace(string(passwordBytes))
 				vpnArgs = append(vpnArgs, "--password", password)
-				vpnCmd = exec.Command("sudo", append([]string{"openfortivpn"}, vpnArgs...)...)
-				vpnCmd.Stdin = nil // Close stdin to prevent blocking
-			} else {
-				vpnArgs = append(vpnArgs, "--daemon")
-				vpnCmd = exec.Command("sudo", append([]string{"openfortivpn"}, vpnArgs...)...)
-				vpnCmd.Stdin = os.Stdin // Keep stdin connected for interactive prompts
 			}
 
-			vpnCmd.Stdout = os.Stdout
-			vpnCmd.Stderr = os.Stderr
+			// Construct the full command string for bash -c
+			// Using nohup and & to run in background and detach from terminal
+			fullCmd := fmt.Sprintf("nohup sudo openfortivpn %s > /dev/null 2>&1 &", strings.Join(vpnArgs, " "))
+			vpnCmd = exec.Command("bash", "-c", fullCmd)
 
-			log.Info("Executing openfortivpn command...")
-			if err := vpnCmd.Run(); err != nil {
-				log.Error("Failed to start VPN", "error", err, "output", err.Error()) // Use err.Error() for more details
+			// No need to connect stdin/stdout/stderr directly as it's running in background
+			// vpnCmd.Stdin = os.Stdin
+			// vpnCmd.Stdout = os.Stdout
+			// vpnCmd.Stderr = os.Stderr
+
+			log.Info("Executing openfortivpn command in background...")
+			if err := vpnCmd.Start(); err != nil { // Use Start() for background process
+				log.Error("Failed to start VPN in background", "error", err, "output", err.Error()) // Use err.Error() for more details
 				return fmt.Errorf("failed to start VPN: %w", err)
 			}
+
+			log.Info("VPN connection process initiated in background.")
+			log.Info("Use 'slothctl vpn status' to check the connection.")
 
 			log.Info("VPN connection process started successfully.")
 			log.Info("Use 'slothctl vpn status' to check the connection.")
