@@ -40,9 +40,9 @@ echo "Fetching latest release from: $LATEST_RELEASE_URL"
 
 # Use curl or wget to fetch release data
 if command_exists curl; then
-    LATEST_VERSION=$(curl -s "$LATEST_RELEASE_URL" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*//')
+    LATEST_VERSION=$(curl -s "$LATEST_RELEASE_URL" | grep '"tag_name":' | sed -E 's/.*"tag_name": "(v[0-9]+\.[0-9]+\.[0-9]+)".*/\1/')
 elif command_exists wget; then
-    LATEST_VERSION=$(wget -qO- "$LATEST_RELEASE_URL" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*//')
+    LATEST_VERSION=$(wget -qO- "$LATEST_RELEASE_URL" | grep '"tag_name":' | sed -E 's/.*"tag_name": "(v[0-9]+\.[0-9]+\.[0-9]+)".*/\1/')
 else
     echo "Error: Neither curl nor wget are installed. Please install one and try again."
     exit 1
