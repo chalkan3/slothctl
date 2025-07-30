@@ -26,6 +26,7 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var configFile string
+			passwordStdin, _ := cmd.Flags().GetBool("password-stdin")
 
 			if len(args) == 0 {
 				// No config file provided, try to use the default
@@ -62,23 +63,34 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 				return fmt.Errorf("configuration file not found: %s", configFile)
 			}
 
-			// Construct the command to run OpenVPN in the background
-			// This requires running as root, so we use sudo.
-			vpnCmd := exec.Command("sudo", "openfortivpn", "-c", configFile)
+			// Construct the command to run openfortivpn
+			vpnArgs := []string{"-c", configFile}
+			if passwordStdin {
+				vpnArgs = append(vpnArgs, "--password-from-stdin")
+			} else {
+				vpnArgs = append(vpnArgs, "--daemon") // Only daemonize if not reading from stdin
+			}
 
-			// Capture and log output
-			output, err := vpnCmd.CombinedOutput()
-			if err != nil {
-				log.Error("Failed to start VPN", "error", err, "output", string(output))
+			vpnCmd := exec.Command("sudo", append([]string{"openfortivpn"}, vpnArgs...)...)
+
+			// Connect stdin/stdout/stderr directly for interactive password input
+			vpnCmd.Stdin = os.Stdin
+			vpnCmd.Stdout = os.Stdout
+			vpnCmd.Stderr = os.Stderr
+
+			log.Info("Executing openfortivpn command...")
+			if err := vpnCmd.Run(); err != nil {
+				log.Error("Failed to start VPN", "error", err, "output", err.Error()) // Use err.Error() for more details
 				return fmt.Errorf("failed to start VPN: %w", err)
 			}
 
-			log.Info("VPN connection process started successfully.", "output", string(output))
+			log.Info("VPN connection process started successfully.")
 			log.Info("Use 'slothctl vpn status' to check the connection.")
 
 			return nil
 		},
 	}
+	cmd.Flags().Bool("password-stdin", false, "Read password from stdin for VPN authentication")
 	return cmd
 }
 

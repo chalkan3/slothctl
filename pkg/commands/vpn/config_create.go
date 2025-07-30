@@ -43,7 +43,6 @@ func (c *createCmd) CobraCommand() *cobra.Command {
 port = %d
 username = %s
 trusted-cert = %s
-disallow-invalid-cert = 1
 `, host, port, user, cert)
 
 			if err := os.WriteFile(filePath, []byte(configContent), 0644); err != nil {
