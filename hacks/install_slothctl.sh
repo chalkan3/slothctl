@@ -56,7 +56,34 @@ case "$OS" in
 esac
 
 echo "Downloading $BINARY_NAME from $DOWNLOAD_URL..."
+
+# --- Start Debugging Block ---
+set -x # Enable command tracing
 curl -L "$DOWNLOAD_URL" -o "$TEMP_ARCHIVE"
+set +x # Disable command tracing
+
+# Check if download was successful and file is valid
+if [ ! -f "$TEMP_ARCHIVE" ]; then
+    echo "Error: Downloaded file not found at $TEMP_ARCHIVE."
+    exit 1
+fi
+
+FILE_SIZE=$(stat -c%s "$TEMP_ARCHIVE")
+if [ "$FILE_SIZE" -lt 1000 ]; then # Assuming a real tar.gz is > 1KB
+    echo "Error: Downloaded file is too small ($FILE_SIZE bytes). Likely an error page."
+    echo "Content of downloaded file:"
+    cat "$TEMP_ARCHIVE"
+    exit 1
+fi
+
+FILE_TYPE=$(file -b "$TEMP_ARCHIVE")
+if [[ ! "$FILE_TYPE" =~ "gzip compressed data" && ! "$FILE_TYPE" =~ "Zip archive" ]]; then
+    echo "Error: Downloaded file is not a valid archive. Detected type: $FILE_TYPE."
+    echo "Content of downloaded file:"
+    cat "$TEMP_ARCHIVE"
+    exit 1
+fi
+# --- End Debugging Block ---
 
 echo "Extracting $BINARY_NAME..."
 mkdir -p "$EXTRACT_DIR"
