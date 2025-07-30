@@ -15,6 +15,16 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Update system and install basic tools
+echo "Updating system and installing necessary tools (file, go, git)..."
+sudo pacman -Syu --noconfirm
+
+# Install 'file' command if not present (used for binary verification)
+if ! command_exists file; then
+    echo "'file' command not found. Installing..."
+    sudo pacman -Sy --noconfirm file
+fi
+
 # Install Go
 if ! command_exists go; then
     echo "Go not found. Installing Go..."
