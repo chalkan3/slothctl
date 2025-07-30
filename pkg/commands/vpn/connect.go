@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/chalkan3/slothctl/internal/log"
@@ -19,13 +20,42 @@ func (c *connectCmd) Parent() string {
 
 func (c *connectCmd) CobraCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "connect [config_file]",
+		Use:   "connect [config_name]",
 		Short: "Connect to a VPN",
-		Long:  `Starts a VPN connection using the specified configuration file (e.g., an .ovpn file for OpenVPN).`,
-		Args:  cobra.ExactArgs(1),
+		Long:  `Starts a VPN connection using the specified configuration file or the default one if none is provided.`,
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			configFile := args[0]
-			log.Info("Attempting to connect to VPN...", "config", configFile)
+			var configFile string
+
+			if len(args) == 0 {
+				// No config file provided, try to use the default
+				configDir, err := GetVPNConfigDir()
+				if err != nil {
+					return fmt.Errorf("could not get vpn config directory: %w", err)
+				}
+				defaultSymlinkPath := filepath.Join(configDir, DefaultConfigFile)
+
+				linkTarget, err := os.Readlink(defaultSymlinkPath)
+				if err != nil {
+					if os.IsNotExist(err) {
+						return fmt.Errorf("no configuration file provided and no default VPN configuration set. Use 'slothctl vpn config set-default <name>' to set one.")
+					} else {
+						return fmt.Errorf("failed to read default VPN configuration symlink: %w", err)
+					}
+				}
+				configFile = filepath.Join(configDir, linkTarget)
+				log.Info("Using default VPN configuration.", "config", linkTarget)
+			} else {
+				// Config file provided as argument
+				configName := args[0]
+				configDir, err := GetVPNConfigDir()
+				if err != nil {
+					return fmt.Errorf("could not get vpn config directory: %w", err)
+				}
+				configFile = filepath.Join(configDir, configName+".conf")
+			}
+
+			log.Info("Attempting to connect to VPN...", "config_path", configFile)
 
 			// Check if the config file exists
 			if _, err := os.Stat(configFile); os.IsNotExist(err) {

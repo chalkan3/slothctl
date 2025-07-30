@@ -3,55 +3,58 @@ package vpn
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/chalkan3/slothctl/pkg/commands"
 )
 
-// createConfigCmd represents the 'vpn create-config' command
-type createConfigCmd struct{}
+// createCmd represents the 'vpn config create' command
+type createCmd struct{}
 
-func (c *createConfigCmd) Parent() string {
-	return "vpn"
+func (c *createCmd) Parent() string {
+	return "config"
 }
 
-func (c *createConfigCmd) CobraCommand() *cobra.Command {
+func (c *createCmd) CobraCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-config [filename]",
-		Short: "Creates a customizable openfortivpn configuration file",
-		Long:  `Generates a new configuration file for openfortivpn, allowing customization via flags.`,
+		Use:   "create [name]",
+		Short: "Creates a new, managed VPN configuration file",
+		Long:  `Generates a new VPN configuration file and saves it in the slothctl config directory.`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			filename := args[0]
+			name := args[0]
+
+			configDir, err := GetVPNConfigDir()
+			if err != nil {
+				return fmt.Errorf("could not get vpn config directory: %w", err)
+			}
+			filePath := filepath.Join(configDir, name)
 
 			host, _ := cmd.Flags().GetString("host")
 			port, _ := cmd.Flags().GetInt("port")
 			user, _ := cmd.Flags().GetString("user")
 			cert, _ := cmd.Flags().GetString("cert")
 
-			log.Info("Creating new VPN configuration file...", "file", filename)
+			log.Info("Creating new VPN configuration file...", "name", name)
 
-			configContent := fmt.Sprintf(`### configuration file for openfortivpn, see man openfortivpn(1) ###
-#
-host = %s
+			configContent := fmt.Sprintf(`host = %s
 port = %d
 username = %s
 trusted-cert = %s
 disallow-invalid-cert = 1
 `, host, port, user, cert)
 
-			if err := os.WriteFile(filename, []byte(configContent), 0644); err != nil {
-				log.Error("Failed to write configuration file", "error", err)
+			if err := os.WriteFile(filePath, []byte(configContent), 0644); err != nil {
 				return fmt.Errorf("failed to write file: %w", err)
 			}
 
-			log.Info("Successfully created VPN configuration file.", "path", filename)
+			log.Info("Successfully created VPN configuration.", "name", name, "path", filePath)
 			return nil
 		},
 	}
 
-	// Add flags for customization
 	cmd.Flags().String("host", "201.48.63.233", "VPN gateway host")
 	cmd.Flags().Int("port", 10443, "VPN gateway port")
 	cmd.Flags().String("user", "igor.rodrigues", "VPN username")
@@ -61,5 +64,5 @@ disallow-invalid-cert = 1
 }
 
 func init() {
-	commands.AddCommandToRegistry(&createConfigCmd{})
+	commands.AddCommandToRegistry(&createCmd{})
 }
