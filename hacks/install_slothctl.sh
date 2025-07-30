@@ -2,58 +2,47 @@
 
 set -euo pipefail
 
-echo "Detecting OS and architecture..."
-
-OS=$(uname -s)
-ARCH=$(uname -m)
-
-BINARY_NAME="slothctl"
-DOWNLOAD_URL=""
+REPO_URL="https://github.com/chalkan3/slothctl.git"
 INSTALL_DIR="/usr/local/bin"
+BINARY_NAME="slothctl"
+TEMP_DIR="/tmp/slothctl_install"
 
-case "$OS" in
-    Linux)
-        case "$ARCH" in
-            x86_64)
-                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/v1.0.0/${BINARY_NAME}-linux-amd64"
-                ;;
-            aarch64)
-                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/v1.0.0/${BINARY_NAME}-linux-arm64"
-                ;;
-            *)
-                echo "Unsupported architecture: $ARCH on Linux"
-                exit 1
-                ;;
-        esac
-        ;;
-    Darwin)
-        case "$ARCH" in
-            x86_64)
-                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/v1.0.0/${BINARY_NAME}-darwin-amd64"
-                ;;
-            arm64)
-                DOWNLOAD_URL="https://github.com/chalkan3/slothctl/releases/download/v1.0.0/${BINARY_NAME}-darwin-arm64"
-                ;;
-            *)
-                echo "Unsupported architecture: $ARCH on macOS"
-                exit 1
-                ;;
-        esac
-        ;;
-    *)
-        echo "Unsupported operating system: $OS"
-        exit 1
-        ;;
-esac
+echo "Starting slothctl installation from source..."
 
-echo "Downloading $BINARY_NAME from $DOWNLOAD_URL..."
-curl -L "$DOWNLOAD_URL" -o "/tmp/${BINARY_NAME}"
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
 
-echo "Making $BINARY_NAME executable..."
-chmod +x "/tmp/${BINARY_NAME}"
+# Install Go
+if ! command_exists go; then
+    echo "Go not found. Installing Go..."
+    sudo pacman -Sy --noconfirm go
+else
+    echo "Go is already installed."
+fi
+
+# Install Git
+if ! command_exists git; then
+    echo "Git not found. Installing Git..."
+    sudo pacman -Sy --noconfirm git
+else
+    echo "Git is already installed."
+}
+
+echo "Cloning repository $REPO_URL..."
+mkdir -p "$TEMP_DIR"
+git clone "$REPO_URL" "$TEMP_DIR"
+
+echo "Building $BINARY_NAME from source..."
+cd "$TEMP_DIR"
+go build -o "$BINARY_NAME" ./cmd/slothctl
 
 echo "Moving $BINARY_NAME to $INSTALL_DIR (requires sudo)..."
-sudo mv "/tmp/${BINARY_NAME}" "$INSTALL_DIR/${BINARY_NAME}"
+sudo mv "$BINARY_NAME" "$INSTALL_DIR/$BINARY_NAME"
+
+echo "Cleaning up temporary files..."
+rm -rf "$TEMP_DIR"
 
 echo "$BINARY_NAME installed successfully to $INSTALL_DIR"
-echo "You can now run 'slothctl' from your terminal."
+echo "You can now run '$BINARY_NAME' from your terminal."
