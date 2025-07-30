@@ -42,8 +42,8 @@ func (c *listCmd) CobraCommand() *cobra.Command {
 
 			fmt.Println("\nAvailable VPN Configurations:")
 			for _, file := range files {
-				if !file.IsDir() && filepath.Ext(file.Name()) == ".conf" {
-					fmt.Printf("- %s\n", file.Name()[:len(file.Name())-len(filepath.Ext(file.Name()))]) // Remove .conf extension
+				if !file.IsDir() {
+					fmt.Printf("- %s\n", file.Name())
 				}
 			}
 

@@ -25,7 +25,7 @@ func (c *statusCmd) CobraCommand() *cobra.Command {
 			log.Info("Checking VPN status...")
 
 			// Check for a running openvpn process
-			statusCmd := exec.Command("pgrep", "-a", "openvpn")
+			statusCmd := exec.Command("pgrep", "-a", "openfortivpn")
 			output, err := statusCmd.CombinedOutput()
 
 			if err != nil {

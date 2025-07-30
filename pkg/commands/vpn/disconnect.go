@@ -25,7 +25,7 @@ func (c *disconnectCmd) CobraCommand() *cobra.Command {
 
 			// Find and kill the openvpn process. `killall` is a convenient way to do this.
 			// This requires running as root.
-			dcCmd := exec.Command("sudo", "killall", "openvpn")
+			dcCmd := exec.Command("sudo", "killall", "openfortivpn")
 
 			output, err := dcCmd.CombinedOutput()
 			if err != nil {

@@ -17,9 +17,6 @@ func (c *configCmd) CobraCommand() *cobra.Command {
 		Use:   "config",
 		Short: "Manage VPN configuration files",
 		Long:  `Provides subcommands to create, list, remove, and manage VPN configuration files.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return cmd.Help()
-		},
 	}
 	return cmd
 }

@@ -30,7 +30,7 @@ func (c *removeCmd) CobraCommand() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("could not get vpn config directory: %w", err)
 			}
-			filePath := filepath.Join(configDir, name+".conf")
+			filePath := filepath.Join(configDir, name)
 
 			log.Info("Attempting to remove VPN configuration...", "name", name, "path", filePath)
 

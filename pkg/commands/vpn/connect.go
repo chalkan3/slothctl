@@ -52,7 +52,7 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 				if err != nil {
 					return fmt.Errorf("could not get vpn config directory: %w", err)
 				}
-				configFile = filepath.Join(configDir, configName+".conf")
+				configFile = filepath.Join(configDir, configName)
 			}
 
 			log.Info("Attempting to connect to VPN...", "config_path", configFile)
@@ -64,7 +64,7 @@ func (c *connectCmd) CobraCommand() *cobra.Command {
 
 			// Construct the command to run OpenVPN in the background
 			// This requires running as root, so we use sudo.
-			vpnCmd := exec.Command("sudo", "openvpn", "--config", configFile, "--daemon")
+			vpnCmd := exec.Command("sudo", "openfortivpn", "-c", configFile)
 
 			// Capture and log output
 			output, err := vpnCmd.CombinedOutput()

@@ -30,7 +30,7 @@ func (c *setDefaultCmd) CobraCommand() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("could not get vpn config directory: %w", err)
 			}
-			filePath := filepath.Join(configDir, name+".conf")
+			filePath := filepath.Join(configDir, name)
 			defaultSymlinkPath := filepath.Join(configDir, DefaultConfigFile)
 
 			log.Info("Setting default VPN configuration...", "name", name)
@@ -47,7 +47,7 @@ func (c *setDefaultCmd) CobraCommand() *cobra.Command {
 			}
 
 			// Create new symlink
-			if err := os.Symlink(name+".conf", defaultSymlinkPath); err != nil {
+			if err := os.Symlink(name, defaultSymlinkPath); err != nil {
 				return fmt.Errorf("failed to create default symlink: %w", err)
 			}
 

@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/chalkan3/slothctl/internal/log"
 	"github.com/spf13/cobra"
 )
@@ -17,51 +19,66 @@ type BluePrintCommand interface {
 // commands is a slice to hold all discovered BluePrintCommand implementations.
 var commands []BluePrintCommand
 
-// RegisterCommands registers all discovered BluePrintCommand implementations with the root command.
-func RegisterCommands(rootCmd *cobra.Command) {
-	cobraCommands := make(map[string]*cobra.Command)
-	commandsToProcess := make(map[string]BluePrintCommand) // Store commands that need to be processed
-
-	// First pass: Create all Cobra commands and add them to the map.
-	// Also, populate commandsToProcess
-	for _, cmd := range commands {
-		cobraCmd := cmd.CobraCommand()
-		cobraCommands[cobraCmd.Name()] = cobraCmd
-		commandsToProcess[cobraCmd.Name()] = cmd
+// getUniqueCommandKey recursively constructs a unique key for a command based on its parentage.
+// This is crucial to avoid name collisions for commands with the same name but different parents.
+func getUniqueCommandKey(cmd BluePrintCommand, allBpCommands map[string]BluePrintCommand) string {
+	if cmd.Parent() == "" {
+		return cmd.CobraCommand().Name()
 	}
 
-	// Keep track of commands successfully added
-	addedCommands := make(map[string]bool)
+	parentBpCmd, ok := allBpCommands[cmd.Parent()]
+	if !ok {
+		// This should ideally not happen if all commands are properly registered.
+		// Fallback to just the command name if parent is not found, but log a warning.
+		log.Warn("Parent not found for unique key generation", "parent", cmd.Parent(), "child", cmd.CobraCommand().Name())
+		return cmd.CobraCommand().Name()
+	}
 
-	// Repeatedly try to add commands until no more can be added in a pass
-	for len(commandsToProcess) > 0 {
-		commandsAddedInPass := 0
-		for cmdName, cmd := range commandsToProcess {
-			if cmd.Parent() == "" {
-				// Root command
-				rootCmd.AddCommand(cobraCommands[cmdName])
-				addedCommands[cmdName] = true
-				delete(commandsToProcess, cmdName)
-				commandsAddedInPass++
+	return fmt.Sprintf("%s/%s", getUniqueCommandKey(parentBpCmd, allBpCommands), cmd.CobraCommand().Name())
+}
+
+// RegisterCommands registers all discovered BluePrintCommand implementations with the root command.
+func RegisterCommands(rootCmd *cobra.Command) {
+	// Map to hold all BluePrintCommand instances, keyed by their simple name.
+	// This is used to resolve parent BluePrintCommand objects.
+	bpCommandsMap := make(map[string]BluePrintCommand)
+	for _, cmd := range commands {
+		bpCommandsMap[cmd.CobraCommand().Name()] = cmd
+	}
+
+	// This map will store all Cobra command instances, keyed by their unique full path.
+	// Each Cobra command is created only once here.
+	allCobraCommands := make(map[string]*cobra.Command)
+
+	// First Loop: Initialize all Cobra command instances and store them in the map using unique keys.
+	for _, cmd := range commands {
+		uniqueKey := getUniqueCommandKey(cmd, bpCommandsMap)
+		allCobraCommands[uniqueKey] = cmd.CobraCommand()
+		log.Debug("Created Cobra command instance", "name", cmd.CobraCommand().Name(), "unique_key", uniqueKey)
+	}
+
+	// Second Loop: Establish parent-child relationships and add to rootCmd.
+	for _, cmd := range commands {
+		uniqueKey := getUniqueCommandKey(cmd, bpCommandsMap)
+		currentCobraCmd := allCobraCommands[uniqueKey] // Retrieve the single instance
+
+		if cmd.Parent() == "" {
+			// It's a root-level command, add it directly to rootCmd.
+			rootCmd.AddCommand(currentCobraCmd)
+			log.Debug("Added root command", "name", currentCobraCmd.Name())
+		} else {
+			// It's a subcommand, find its parent and add it.
+			parentUniqueKey := getUniqueCommandKey(bpCommandsMap[cmd.Parent()], bpCommandsMap)
+			parentCobraCmd, ok := allCobraCommands[parentUniqueKey]
+			if ok {
+				parentCobraCmd.AddCommand(currentCobraCmd)
+				log.Debug("Successfully added subcommand", "subcommand", currentCobraCmd.Name(), "parent", parentCobraCmd.Name())
 			} else {
-				parentCmd, ok := cobraCommands[cmd.Parent()]
-				if ok && addedCommands[cmd.Parent()] { // Parent exists and has been added
-					parentCmd.AddCommand(cobraCommands[cmdName])
-					log.Info("Successfully added subcommand", "subcommand", cmdName, "parent", cmd.Parent())
-					addedCommands[cmdName] = true
-					delete(commandsToProcess, cmdName)
-					commandsAddedInPass++
-				}
+				// This case indicates a problem: a child command's parent was not found.
+				// This could happen if the parent command itself wasn't registered, or if there's a typo.
+				log.Warn("Parent Cobra command not found in map, adding child to root as fallback", "parent_unique_key", parentUniqueKey, "child", currentCobraCmd.Name())
+				rootCmd.AddCommand(currentCobraCmd) // Fallback: add to root
 			}
-		}
-		if commandsAddedInPass == 0 && len(commandsToProcess) > 0 {
-			// No commands were added in this pass, but some remain.
-			// This indicates a circular dependency or a missing parent.
-			log.Warn("Could not register all commands due to missing parents or circular dependencies. Remaining commands:", "count", len(commandsToProcess))
-			for cmdName, cmd := range commandsToProcess {
-				log.Warn("  - Command:", "name", cmdName, "parent", cmd.Parent())
-			}
-			break // Exit loop to prevent infinite loop
 		}
 	}
 }
@@ -69,6 +86,6 @@ func RegisterCommands(rootCmd *cobra.Command) {
 // AddCommandToRegistry is called by individual command packages' init() functions
 // to register themselves with the command registry.
 func AddCommandToRegistry(cmd BluePrintCommand) {
-	log.Info("Registering command", "name", cmd.CobraCommand().Name(), "parent", cmd.Parent())
 	commands = append(commands, cmd)
+	log.Debug("Registering command (BluePrintCommand)", "name", cmd.CobraCommand().Name(), "parent", cmd.Parent())
 }
