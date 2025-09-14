@@ -2,7 +2,6 @@ package saltnode
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -49,6 +48,8 @@ func (c *addCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	log.Info("Creating and configuring pulumi stack")
+
+	os.Setenv("PULUMI_CONFIG_PASSPHRASE", "")
 
 	stackCmd := exec.Command("pulumi", "stack", "select", "--create", minionName)
 	stackCmd.Dir = cloneDir
