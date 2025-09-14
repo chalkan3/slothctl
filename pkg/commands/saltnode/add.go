@@ -49,9 +49,7 @@ func (c *addCmd) run(cmd *cobra.Command, args []string) {
 
 	log.Info("Creating and configuring pulumi stack")
 
-	os.Setenv("PULUMI_CONFIG_PASSPHRASE", "")
-
-	stackCmd := exec.Command("pulumi", "stack", "select", "--create", minionName)
+	stackCmd := exec.Command("sudo", "PULUMI_CONFIG_PASSPHRASE=", "pulumi", "stack", "select", "--create", minionName)
 	stackCmd.Dir = cloneDir
 	stackCmd.Stdout = os.Stdout
 	stackCmd.Stderr = os.Stderr
@@ -67,7 +65,7 @@ func (c *addCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	for key, val := range configs {
-		configCmd := exec.Command("pulumi", "config", "set", key, val)
+		configCmd := exec.Command("sudo", "PULUMI_CONFIG_PASSPHRASE=", "pulumi", "config", "set", key, val)
 		configCmd.Dir = cloneDir
 		configCmd.Stdout = os.Stdout
 		configCmd.Stderr = os.Stderr
@@ -102,7 +100,7 @@ func (c *addCmd) run(cmd *cobra.Command, args []string) {
 			return
 		}
 
-		configGrainsCmd := exec.Command("pulumi", "config", "set", "--path", "salt-home:grains", string(grainsJSON))
+		configGrainsCmd := exec.Command("sudo", "PULUMI_CONFIG_PASSPHRASE=", "pulumi", "config", "set", "--path", "salt-home:grains", string(grainsJSON))
 		configGrainsCmd.Dir = cloneDir
 		configGrainsCmd.Stdout = os.Stdout
 		configGrainsCmd.Stderr = os.Stderr
@@ -113,7 +111,7 @@ func (c *addCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	log.Info("Running pulumi up")
-	pulumiCmd := exec.Command("pulumi", "up", "--yes", "--skip-preview")
+	pulumiCmd := exec.Command("sudo", "PULUMI_CONFIG_PASSPHRASE=", "pulumi", "up", "--yes", "--skip-preview")
 	pulumiCmd.Dir = cloneDir
 	pulumiCmd.Stdout = os.Stdout
 	pulumiCmd.Stderr = os.Stderr

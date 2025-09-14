@@ -41,9 +41,7 @@ func (c *deleteCmd) run(cmd *cobra.Command, args []string) {
 		log.Info("Repository already cloned")
 	}
 
-	os.Setenv("PULUMI_CONFIG_PASSPHRASE", "")
-
-	stackCmd := exec.Command("pulumi", "stack", "select", minionName)
+	stackCmd := exec.Command("sudo", "PULUMI_CONFIG_PASSPHRASE=", "pulumi", "stack", "select", minionName)
 	stackCmd.Dir = cloneDir
 	stackCmd.Stdout = os.Stdout
 	stackCmd.Stderr = os.Stderr
@@ -53,7 +51,7 @@ func (c *deleteCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	log.Info("Running pulumi destroy")
-	pulumiCmd := exec.Command("pulumi", "destroy", "--yes", "--skip-preview")
+	pulumiCmd := exec.Command("sudo", "PULUMI_CONFIG_PASSPHRASE=", "pulumi", "destroy", "--yes", "--skip-preview")
 	pulumiCmd.Dir = cloneDir
 	pulumiCmd.Stdout = os.Stdout
 	pulumiCmd.Stderr = os.Stderr

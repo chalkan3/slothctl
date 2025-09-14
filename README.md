@@ -64,19 +64,32 @@ slothctl server ssh <server-name> --exec "uptime"
 
 ### Managing Salt Nodes
 
-(Experimental) Add a new salt minion and configure it using Pulumi.
+(Experimental) Add or delete a salt minion and configure it using Pulumi.
+
+#### Add a Salt Node
 
 ```bash
-slothctl salt-node add <minion-name> --master-host <master-ip> --minion-target <target-name> --grain roles=web --grain roles=db --grain datacenter=nyc
+sudo slothctl salt-node add <minion-name> --master-host <master-ip> --minion-target <target-name> --grain roles=web --grain roles=db --grain datacenter=nyc
 ```
 
 This command will:
-1. Clone the `https://github.com/chalkan3/salt-home` repository to `/tmp/salt-home`.
+1. Clone the `https://github.com/chalkan3/salt-home` repository to `/tmp/salt-home` (if not already cloned).
 2. Create a new Pulumi stack named `<minion-name>`.
 3. Configure the stack with the provided `master-host`, `minion-target`, and `grains`.
-4. Run `pulumi up` to provision the new salt minion.
+4. Run `sudo pulumi up` to provision the new salt minion. The `PULUMI_CONFIG_PASSPHRASE` environment variable is set to an empty string for non-interactive execution.
 
-**Note:** This command is experimental and requires `git` and `pulumi` to be installed and available in your `PATH`.
+#### Delete a Salt Node
+
+```bash
+sudo slothctl salt-node delete <minion-name>
+```
+
+This command will:
+1. Ensure the `https://github.com/chalkan3/salt-home` repository is cloned to `/tmp/salt-home`.
+2. Select the Pulumi stack named `<minion-name>`.
+3. Run `sudo pulumi destroy` to deprovision the salt minion. The `PULUMI_CONFIG_PASSPHRASE` environment variable is set to an empty string for non-interactive execution.
+
+**Note:** These commands are experimental and require `git` and `pulumi` to be installed and available in your `PATH`. Running these commands with `sudo` is necessary if `pulumi` is not in the `PATH` of the user executing `slothctl`. However, the Pulumi program itself might still require `sudo` for internal operations, which can lead to password prompts in non-interactive environments. Consider configuring passwordless `sudo` or modifying the Pulumi program in `salt-home` to avoid `sudo` if you encounter such issues.
 
 ### Managing VPN
 
