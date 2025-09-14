@@ -62,6 +62,22 @@ Execute a command on a server without a full SSH session:
 slothctl server ssh <server-name> --exec "uptime"
 ```
 
+### Managing Salt Nodes
+
+(Experimental) Add a new salt minion and configure it using Pulumi.
+
+```bash
+slothctl salt-node add <minion-name> --master-host <master-ip> --minion-target <target-name> --grain roles=web --grain roles=db --grain datacenter=nyc
+```
+
+This command will:
+1. Clone the `https://github.com/chalkan3/salt-home` repository to `/tmp/salt-home`.
+2. Create a new Pulumi stack named `<minion-name>`.
+3. Configure the stack with the provided `master-host`, `minion-target`, and `grains`.
+4. Run `pulumi up` to provision the new salt minion.
+
+**Note:** This command is experimental and requires `git` and `pulumi` to be installed and available in your `PATH`.
+
 ### Managing VPN
 
 Connect to the default VPN profile:
